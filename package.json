@@ -1,0 +1,13 @@
+{
+  "name": "youtube-downloader",
+  "version": "1.0.0",
+  "description": "A web-based YouTube video downloader with enhanced features",
+  "scripts": {
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd backend && python3 -m uvicorn app.main:app --reload",
+    "dev": "concurrently \"npm run frontend\" \"npm run backend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

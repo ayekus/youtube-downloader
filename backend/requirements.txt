@@ -1,0 +1,8 @@
+fastapi>=0.68.0
+uvicorn>=0.15.0
+python-multipart
+yt-dlp>=2023.0.0
+pydantic>=2.0.0
+python-jose[cryptography]
+websockets
+aiofiles
