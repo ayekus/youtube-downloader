@@ -301,7 +301,7 @@ class YoutubeDownloadService:
         except Exception as e:
             pass  # Silently ignore progress hook errors
 
-    async def download_video(self, url: str, format_id: str = None, extract_audio: bool = False, callback=None):
+    async def download_video(self, url: str, format_id: str = None, extract_audio: bool = False, start_time: Optional[int] = None, end_time: Optional[int] = None, callback=None):
         """Download video with specified format and options."""
         if extract_audio:
             # Audio extraction configuration
@@ -341,6 +341,12 @@ class YoutubeDownloadService:
                     '-strict', 'experimental'  # Allow experimental codecs if needed
                 ]
             }
+
+        if start_time is not None and end_time is not None:
+            ydl_opts['download_ranges'] = lambda info, ydl: [{'start_time': start_time, 'end_time': end_time}]
+            # Force keyframe cutting for more accurate trimming, though it might be less precise without re-encoding
+            # For audio, re-encoding is usually fine.
+            ydl_opts['force_keyframes_at_cuts'] = True
 
         video_id = None  # Initialize video_id outside try block
         try:

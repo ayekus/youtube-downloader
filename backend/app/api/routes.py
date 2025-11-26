@@ -11,6 +11,8 @@ class DownloadRequest(BaseModel):
     url: HttpUrl
     format_id: Optional[str] = None
     extract_audio: bool = False
+    start_time: Optional[int] = None
+    end_time: Optional[int] = None
 
 @router.get("/video/info", response_model=VideoInfo)
 async def get_video_info(url: HttpUrl):
@@ -57,6 +59,8 @@ async def websocket_download(websocket: WebSocket):
                     url=data['url'],
                     format_id=data.get('format_id'),
                     extract_audio=data.get('extract_audio', False),
+                    start_time=data.get('start_time'),
+                    end_time=data.get('end_time'),
                     callback=progress_callback
                 )
                 await websocket.send_json({"status": "completed", "title": title})
@@ -74,7 +78,9 @@ async def download_video(request: DownloadRequest, background_tasks: BackgroundT
             download_service.download_video,
             url=str(request.url),
             format_id=request.format_id,
-            extract_audio=request.extract_audio
+            extract_audio=request.extract_audio,
+            start_time=request.start_time,
+            end_time=request.end_time
         )
         return {"message": "Download started"}
     except Exception as e:

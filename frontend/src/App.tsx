@@ -70,7 +70,7 @@ function App() {
   };
 
   const handleDownload = useCallback(
-    (formatId: string, extractAudio: boolean) => {
+    (formatId: string, extractAudio: boolean, startTime?: number, endTime?: number) => {
       if (!video) {
         toast({
           title: "Error",
@@ -99,6 +99,8 @@ function App() {
                 url: video.webpage_url,
                 format_id: formatId,
                 extract_audio: extractAudio,
+                start_time: startTime,
+                end_time: endTime,
               })
             );
           } catch (error) {
