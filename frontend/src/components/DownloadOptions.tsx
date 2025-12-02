@@ -1,10 +1,10 @@
 import React from "react";
 import { Box, VStack, Select, Switch, FormControl, FormLabel, Button, Text } from "@chakra-ui/react";
-import { VideoInfo } from "../api/client";
+import type { VideoInfo } from "../api/client";
 
 interface DownloadOptionsProps {
   video: VideoInfo;
-  onDownload: (formatId: string, extractAudio: boolean) => void;
+  onDownload: (formatId: string, extractAudio: boolean, startTime?: number, endTime?: number) => void;
   isLoading?: boolean;
   isInitializingDownload?: boolean;
 }
@@ -17,6 +17,73 @@ export const DownloadOptions: React.FC<DownloadOptionsProps> = ({
 }) => {
   const [selectedFormat, setSelectedFormat] = React.useState("");
   const [extractAudio, setExtractAudio] = React.useState(false);
+  const [startTime, setStartTime] = React.useState<number>(0);
+  const [endTime, setEndTime] = React.useState<number>(video.duration || 0);
+
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    if (h > 0) {
+      return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+    }
+    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const [startTimeInput, setStartTimeInput] = React.useState("00:00");
+  const [endTimeInput, setEndTimeInput] = React.useState(formatTime(video.duration || 0));
+
+  // Reset times when video changes or audio is toggled
+  React.useEffect(() => {
+    if (extractAudio) {
+      const start = 0;
+      const end = video.duration || 0;
+      setStartTime(start);
+      setEndTime(end);
+      setStartTimeInput(formatTime(start));
+      setEndTimeInput(formatTime(end));
+    }
+  }, [extractAudio, video.duration]);
+
+  const parseTimeInput = (input: string): number | null => {
+    // Remove any non-digit and non-colon characters
+    const cleanInput = input.replace(/[^\d:]/g, "");
+    const parts = cleanInput.split(":").map((part) => parseInt(part || "0", 10));
+
+    if (parts.length === 3) {
+      // HH:MM:SS
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    } else if (parts.length === 2) {
+      // MM:SS
+      return parts[0] * 60 + parts[1];
+    } else if (parts.length === 1) {
+      // SS
+      return parts[0];
+    }
+    return null;
+  };
+
+  const handleStartTimeBlur = () => {
+    const seconds = parseTimeInput(startTimeInput);
+    if (seconds !== null && !isNaN(seconds)) {
+      const validSeconds = Math.max(0, Math.min(seconds, endTime));
+      setStartTime(validSeconds);
+      setStartTimeInput(formatTime(validSeconds));
+    } else {
+      setStartTimeInput(formatTime(startTime));
+    }
+  };
+
+  const handleEndTimeBlur = () => {
+    const seconds = parseTimeInput(endTimeInput);
+    if (seconds !== null && !isNaN(seconds)) {
+      const validSeconds = Math.min(video.duration || 0, Math.max(seconds, startTime));
+      setEndTime(validSeconds);
+      setEndTimeInput(formatTime(validSeconds));
+    } else {
+      setEndTimeInput(formatTime(endTime));
+    }
+  };
 
   // Filter and sort video formats
   const videoFormats = React.useMemo(() => {
@@ -45,7 +112,11 @@ export const DownloadOptions: React.FC<DownloadOptionsProps> = ({
   }, [video.formats]);
 
   const handleDownload = () => {
-    onDownload(selectedFormat, extractAudio);
+    if (extractAudio) {
+      onDownload(selectedFormat, extractAudio, startTime, endTime);
+    } else {
+      onDownload(selectedFormat, extractAudio);
+    }
   };
 
   return (
@@ -99,6 +170,46 @@ export const DownloadOptions: React.FC<DownloadOptionsProps> = ({
             }}
           />
         </FormControl>
+
+        {extractAudio && (
+          <Box>
+            <Text fontSize="sm" mb={2} fontWeight="medium">
+              Trim Audio (Optional)
+            </Text>
+            <Box display="flex" gap={4}>
+              <FormControl>
+                <FormLabel fontSize="xs">Start Time (HH:MM:SS or MM:SS)</FormLabel>
+                <input
+                  type="text"
+                  value={startTimeInput}
+                  onChange={(e) => setStartTimeInput(e.target.value)}
+                  onBlur={handleStartTimeBlur}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    border: "1px solid #E2E8F0",
+                  }}
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="xs">End Time (HH:MM:SS or MM:SS)</FormLabel>
+                <input
+                  type="text"
+                  value={endTimeInput}
+                  onChange={(e) => setEndTimeInput(e.target.value)}
+                  onBlur={handleEndTimeBlur}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    border: "1px solid #E2E8F0",
+                  }}
+                />
+              </FormControl>
+            </Box>
+          </Box>
+        )}
 
         <Button
           colorScheme="blue"
