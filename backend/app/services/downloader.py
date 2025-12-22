@@ -103,8 +103,24 @@ class YoutubeDownloadService:
                             'has_video': f.get('vcodec') != 'none',
                         })
                 
-                # Sort formats by quality (bitrate)
-                formats.sort(key=lambda x: float('-inf') if x.get('tbr') is None else x['tbr'], reverse=True)
+                # Sort formats prioritizing combined audio+video, then by quality (bitrate)
+                # Priority: 1) Combined formats (both audio+video), 2) Video-only, 3) Audio-only
+                # Within each category, sort by bitrate (highest first)
+                def sort_key(fmt):
+                    has_audio = fmt.get('has_audio', False)
+                    has_video = fmt.get('has_video', False)
+                    bitrate = fmt.get('tbr') if fmt.get('tbr') is not None else 0
+                    
+                    # Return tuple: (priority, bitrate)
+                    # Lower priority number = appears first
+                    if has_audio and has_video:
+                        return (0, -bitrate)  # Combined formats first, highest bitrate first
+                    elif has_video:
+                        return (1, -bitrate)  # Video-only second
+                    else:
+                        return (2, -bitrate)  # Audio-only last
+                
+                formats.sort(key=sort_key)
                 
                 video_info = VideoInfo(
                     id=info['id'],
