@@ -10,6 +10,7 @@ import {
   Heading,
   Box,
   HStack,
+  Stack,
   Skeleton,
   ColorModeScript,
 } from "@chakra-ui/react";
@@ -210,34 +211,41 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-      <Container maxW={{ base: "95%", md: "container.md" }} py={{ base: 4, md: 8 }}>
-        <VStack spacing={{ base: 6, md: 8 }} align="stretch">
-          <Heading as="h1" size={{ base: "lg", md: "xl" }} textAlign="center" px={2}>
+      <Container maxW={{ base: "95%", md: "container.lg", lg: "container.xl" }} py={{ base: 4, md: 8, lg: 12 }}>
+        <VStack spacing={{ base: 6, md: 8, lg: 10 }} align="stretch">
+          <Heading as="h1" size={{ base: "lg", md: "xl", lg: "2xl" }} textAlign="center" px={2}>
             YouTube Downloader
           </Heading>
 
-          <Text textAlign="center" color="gray.600" fontSize={{ base: "sm", md: "md" }} px={2}>
+          <Text textAlign="center" color="gray.600" fontSize={{ base: "sm", md: "md", lg: "lg" }} px={2} maxW="2xl" mx="auto">
             Download videos and playlists from YouTube in various formats
           </Text>
 
-          <VStack spacing={4} px={2}>
-            <Input
-              placeholder="Enter YouTube URL"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              size={{ base: "md", md: "lg" }}
-              width="full"
-            />
-            <Button
-              colorScheme="blue"
-              onClick={handleUrlSubmit}
-              isLoading={isLoading}
-              size={{ base: "md", md: "lg" }}
-              width="full"
+          <Box maxW="4xl" mx="auto" w="full">
+            <Stack 
+              direction={{ base: "column", md: "row" }} 
+              spacing={4} 
+              px={2}
             >
-              Get Video Info
-            </Button>
-          </VStack>
+              <Input
+                placeholder="Enter YouTube URL"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                size={{ base: "md", md: "lg" }}
+                flex="1"
+              />
+              <Button
+                colorScheme="blue"
+                onClick={handleUrlSubmit}
+                isLoading={isLoading}
+                size={{ base: "md", md: "lg" }}
+                width={{ base: "full", md: "auto" }}
+                px={{ md: 8 }}
+              >
+                Get Video Info
+              </Button>
+            </Stack>
+          </Box>
 
           {isLoading ? (
             <VStack spacing={4}>
@@ -261,19 +269,30 @@ function App() {
             </VStack>
           ) : (
             video && (
-              <>
-                <VideoPreview video={video} />
-                <DownloadOptions
-                  video={video}
-                  onDownload={handleDownload}
-                  isLoading={downloadProgress?.status === "downloading"}
-                  isInitializingDownload={isInitializingDownload}
-                />
-              </>
+              <Box maxW="6xl" mx="auto" w="full">
+                <Stack 
+                  direction={{ base: "column", lg: "row" }}
+                  spacing={{ base: 6, lg: 8 }}
+                  align={{ base: "stretch", lg: "start" }}
+                >
+                  <Box flex="1">
+                    <VideoPreview video={video} />
+                  </Box>
+                  <Box flex="1">
+                    <VStack spacing={{ base: 6, lg: 8 }} align="stretch">
+                      <DownloadOptions
+                        video={video}
+                        onDownload={handleDownload}
+                        isLoading={downloadProgress?.status === "downloading"}
+                        isInitializingDownload={isInitializingDownload}
+                      />
+                      {downloadProgress && <DownloadProgressBar progress={downloadProgress} />}
+                    </VStack>
+                  </Box>
+                </Stack>
+              </Box>
             )
           )}
-
-          {downloadProgress && <DownloadProgressBar progress={downloadProgress} />}
         </VStack>
       </Container>
       <ThemeToggle />

@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Progress, Text, VStack } from "@chakra-ui/react";
-import { DownloadProgress } from "../api/client";
+import type { DownloadProgress } from "../api/client";
 
 interface DownloadProgressBarProps {
   progress: DownloadProgress;
@@ -32,7 +32,7 @@ export const DownloadProgressBar: React.FC<DownloadProgressBarProps> = ({ progre
   if (progress.status === "finished") {
     return (
       <Box
-        p={{ base: 3, md: 4 }}
+        p={{ base: 3, md: 4, lg: 6 }}
         borderWidth="1px"
         borderRadius="lg"
         transition="all 0.3s ease-in-out"
@@ -54,16 +54,16 @@ export const DownloadProgressBar: React.FC<DownloadProgressBarProps> = ({ progre
           animation: "shine 1s",
         }}
       >
-        <VStack spacing={2} align={{ base: "center", sm: "start" }}>
-          <Text color="green.500" fontWeight="bold" fontSize={{ base: "sm", md: "md" }}>
+        <VStack spacing={{ base: 2, md: 3 }} align={{ base: "center", sm: "start" }}>
+          <Text color="green.500" fontWeight="bold" fontSize={{ base: "sm", md: "md", lg: "lg" }}>
             Download Complete!
           </Text>
-          <Text fontSize={{ base: "xs", md: "sm" }} color="green.600" _dark={{ color: "green.200" }}>
+          <Text fontSize={{ base: "xs", md: "sm", lg: "md" }} color="green.600" _dark={{ color: "green.200" }}>
             {progress.title}
           </Text>
           {progress.filename && (
             <Text
-              fontSize={{ base: "xs", md: "sm" }}
+              fontSize={{ base: "xs", md: "sm", lg: "md" }}
               mt={{ base: 1, md: 2 }}
               textAlign={{ base: "center", sm: "left" }}
               wordBreak="break-word"
@@ -80,22 +80,22 @@ export const DownloadProgressBar: React.FC<DownloadProgressBarProps> = ({ progre
 
   return (
     <Box
-      p={{ base: 3, md: 4 }}
+      p={{ base: 3, md: 4, lg: 6 }}
       borderWidth="1px"
       borderRadius="lg"
       transition="all 0.3s ease-in-out"
       transform="scale(1)"
       _hover={{ transform: "scale(1.01)", shadow: "md" }}
     >
-      <VStack spacing={{ base: 2, md: 3 }} align="stretch">
+      <VStack spacing={{ base: 2, md: 3, lg: 4 }} align="stretch">
         <Progress
           value={getProgressPercentage()}
-          size={{ base: "xs", md: "sm" }}
+          size={{ base: "xs", md: "sm", lg: "md" }}
           colorScheme="blue"
           hasStripe
           isAnimated
         />
-        <Text fontSize={{ base: "xs", md: "sm" }} textAlign={{ base: "center", sm: "left" }}>
+        <Text fontSize={{ base: "xs", md: "sm", lg: "md" }} textAlign={{ base: "center", sm: "left" }}>
           {progress.downloaded_bytes && progress.total_bytes
             ? `${(progress.downloaded_bytes / 1024 / 1024).toFixed(1)} MB of ${(
                 progress.total_bytes /
@@ -109,7 +109,7 @@ export const DownloadProgressBar: React.FC<DownloadProgressBarProps> = ({ progre
             : "Starting download..."}
         </Text>{" "}
         {progress.speed && (
-          <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500" textAlign={{ base: "center", sm: "left" }}>
+          <Text fontSize={{ base: "xs", md: "sm", lg: "md" }} color="gray.500" textAlign={{ base: "center", sm: "left" }}>
             Speed: {formatSpeed(progress.speed)}
             {progress.eta && ` • Time remaining: ${formatTime(progress.eta)}`}
           </Text>

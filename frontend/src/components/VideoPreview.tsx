@@ -1,5 +1,5 @@
-import { Box, Image, Text, VStack, Stack, Badge, useColorModeValue, keyframes } from "@chakra-ui/react";
-import { VideoInfo } from "../api/client";
+import { Box, Image, Text, VStack, Badge, useColorModeValue } from "@chakra-ui/react";
+import type { VideoInfo } from "../api/client";
 
 interface VideoPreviewProps {
   video: VideoInfo;
@@ -25,7 +25,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ video, isSelected, o
 
   return (
     <Box
-      p={4}
+      p={{ base: 4, md: 5, lg: 6 }}
       borderWidth="1px"
       borderRadius="lg"
       borderColor={borderColor}
@@ -38,14 +38,10 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ video, isSelected, o
         shadow: onClick ? "md" : "none",
       }}
       width="100%"
+      height="100%"
     >
-      <Stack
-        direction={{ base: "column", sm: "row" }}
-        spacing={{ base: 4, sm: 6 }}
-        align={{ base: "center", sm: "start" }}
-        width="full"
-      >
-        <Box position="relative" width={{ base: "full", sm: "200px" }} maxWidth={{ base: "350px", sm: "200px" }}>
+      <VStack spacing={{ base: 4, md: 5 }} align="stretch" width="full">
+        <Box position="relative" width="100%">
           <Image
             src={video.thumbnail}
             alt={video.title}
@@ -62,32 +58,34 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ video, isSelected, o
             backgroundColor="rgba(0, 0, 0, 0.75)"
             color="white"
             fontSize={{ base: "xs", md: "sm" }}
+            px={2}
+            py={1}
           >
             {formatDuration(video.duration)}
           </Badge>
         </Box>
 
-        <VStack align={{ base: "center", sm: "start" }} flex={1} spacing={2} width={{ base: "full", sm: "auto" }}>
+        <VStack align="start" flex={1} spacing={2} width="full">
           <Text
             fontWeight="bold"
             noOfLines={2}
-            textAlign={{ base: "center", sm: "left" }}
-            fontSize={{ base: "md", md: "lg" }}
+            fontSize={{ base: "md", md: "lg", lg: "xl" }}
+            lineHeight="1.3"
           >
             {video.title}
           </Text>
           {video.uploader && (
-            <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500" textAlign={{ base: "center", sm: "left" }}>
+            <Text fontSize={{ base: "xs", md: "sm", lg: "md" }} color="gray.500">
               {video.uploader}
             </Text>
           )}
           {video.view_count && (
-            <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500" textAlign={{ base: "center", sm: "left" }}>
+            <Text fontSize={{ base: "xs", md: "sm", lg: "md" }} color="gray.500">
               {new Intl.NumberFormat().format(video.view_count)} views
             </Text>
           )}
         </VStack>
-      </Stack>
+      </VStack>
     </Box>
   );
 };

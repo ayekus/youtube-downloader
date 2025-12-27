@@ -120,16 +120,23 @@ export const DownloadOptions: React.FC<DownloadOptionsProps> = ({
   };
 
   return (
-    <Box p={{ base: 3, md: 4 }} borderWidth="1px" borderRadius="lg" transition="all 0.2s" _hover={{ shadow: "md" }}>
-      <VStack spacing={{ base: 3, md: 4 }} align="stretch">
+    <Box 
+      p={{ base: 3, md: 4, lg: 6 }} 
+      borderWidth="1px" 
+      borderRadius="lg" 
+      transition="all 0.2s" 
+      _hover={{ shadow: "md" }}
+      height="100%"
+    >
+      <VStack spacing={{ base: 3, md: 4, lg: 5 }} align="stretch">
         <FormControl>
-          <FormLabel fontSize={{ base: "sm", md: "md" }}>Video Quality</FormLabel>
+          <FormLabel fontSize={{ base: "sm", md: "md", lg: "lg" }}>Video Quality</FormLabel>
           <Select
             value={selectedFormat}
             onChange={(e) => setSelectedFormat(e.target.value)}
             placeholder="Select video quality"
             isDisabled={extractAudio}
-            size={{ base: "sm", md: "md" }}
+            size={{ base: "sm", md: "md", lg: "lg" }}
           >
             {videoFormats.map((format) => (
               <option key={format.format_id} value={format.format_id}>
@@ -147,7 +154,7 @@ export const DownloadOptions: React.FC<DownloadOptionsProps> = ({
         >
           <FormLabel
             mb={{ base: 0, sm: "0" }}
-            fontSize={{ base: "sm", md: "md" }}
+            fontSize={{ base: "sm", md: "md", lg: "lg" }}
             textAlign={{ base: "center", sm: "left" }}
             width={{ base: "full", sm: "auto" }}
           >
@@ -217,14 +224,14 @@ export const DownloadOptions: React.FC<DownloadOptionsProps> = ({
           isLoading={isLoading || isInitializingDownload}
           loadingText={isInitializingDownload ? "Preparing Download..." : "Downloading..."}
           isDisabled={!selectedFormat && !extractAudio}
-          size={{ base: "sm", md: "md" }}
-          mt={{ base: 2, md: 3 }}
+          size={{ base: "sm", md: "md", lg: "lg" }}
+          mt={{ base: 2, md: 3, lg: 4 }}
         >
           Download {extractAudio ? "Audio" : "Video"}
         </Button>
 
         {extractAudio && (
-          <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500" textAlign="center">
+          <Text fontSize={{ base: "xs", md: "sm", lg: "md" }} color="gray.500" textAlign="center">
             Audio will be converted to MP3 format
           </Text>
         )}

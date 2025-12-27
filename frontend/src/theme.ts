@@ -25,11 +25,9 @@ export default extendTheme({
   },
   components: {
     Container: {
-      baseStyle: (props: { colorMode: "light" | "dark" }) => ({
-        bg: props.colorMode === "dark" ? "gray.700" : "white",
-        borderRadius: "xl",
-        shadow: "lg",
-      }),
+      baseStyle: {
+        // No custom background - let it inherit from body
+      },
     },
     Input: {
       variants: {
