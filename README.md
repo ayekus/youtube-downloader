@@ -2,6 +2,12 @@
 
 A modern web application for downloading YouTube videos and playlists with enhanced features. Built with React, TypeScript, and FastAPI.
 
+## Demo
+
+![YouTube Downloader Demo](assets/demo.webp)
+
+*Desktop-optimized interface with centered content, side-by-side layout, and real-time download progress. Supports both light and dark modes.*
+
 ## Prerequisites
 
 - Python 3.8 or higher
