@@ -68,9 +68,18 @@ class YoutubeDownloadService:
                 if not info:
                     raise Exception("No video information found")
                 
-                # Filter and sort formats
+                #Filter and sort formats
                 formats = []
                 for f in info.get('formats', []):
+                    # Skip formats without a URL (SABR streaming issue)
+                    if not f.get('url'):
+                        continue
+                    
+                    # Skip HLS/m3u8 formats (currently broken on YouTube)
+                    protocol = f.get('protocol', '')
+                    if 'm3u8' in protocol or protocol == 'http_dash_segments':
+                        continue
+                        
                     # Only include formats that either:
                     # 1. Have both video and audio
                     # 2. Are MP4 video only (will be merged with best audio)
@@ -80,27 +89,27 @@ class YoutubeDownloadService:
                         (f.get('acodec') != 'none' and f.get('vcodec') == 'none')):   # Audio only formats
                         
                         format_note = []
-                        if f.get('height'):
-                            format_note.append(f"{f['height']}p")
-                        if f.get('fps'):
-                            format_note.append(f"{f['fps']}fps")
+                        has_video = f.get('vcodec') != 'none'
+                        has_audio = f.get('acodec') != 'none'
                         
-                        # Indicate if this is a combined format or will need merging
-                        if f.get('acodec') != 'none' and f.get('vcodec') != 'none':
-                            format_note.append('video+audio')
-                        elif f.get('acodec') == 'none':
-                            format_note.append('video-only')
-                        elif f.get('vcodec') == 'none':
+                        if has_video:
+                            # For video formats, show resolution and fps
+                            if f.get('height'):
+                                format_note.append(f"{f['height']}p")
+                            if f.get('fps'):
+                                format_note.append(f"{f['fps']}fps")
+                        elif has_audio and not has_video:
+                            # Audio-only format
                             format_note.append('audio-only')
                             
                         formats.append({
                             'format_id': f['format_id'],
                             'ext': f['ext'],
                             'filesize': f.get('filesize'),
-                            'format_note': ' '.join(format_note),
+                            'format_note': ' '.join(format_note) if format_note else 'unknown',
                             'tbr': f.get('tbr'),  # Total bitrate
-                            'has_audio': f.get('acodec') != 'none',
-                            'has_video': f.get('vcodec') != 'none',
+                            'has_audio': has_audio,
+                            'has_video': has_video,
                         })
                 
                 # Sort formats prioritizing combined audio+video, then by quality (bitrate)
@@ -331,27 +340,37 @@ class YoutubeDownloadService:
                     'preferredquality': '192',
                 }],
                 'quiet': True,
+                'no_warnings': True,
                 'nocheckcertificate': True,
                 'prefer_ffmpeg': True,
                 'keepvideo': False,  # Don't keep the video file for audio extraction
             }
         else:
             # Video download configuration
+            # If a specific format is selected, merge it with best audio
+            # Format selector: if format_id is video-only, it will be merged with bestaudio
+            if format_id:
+                # Use the selected format and merge with best audio
+                format_selector = f'{format_id}+bestaudio/best'
+            else:
+                # Default: best video (up to 1080p) + best audio
+                format_selector = 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+            
             ydl_opts = {
-                'format': format_id if format_id else 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+                'format': format_selector,
                 'merge_output_format': 'mp4',
                 'outtmpl': os.path.join(self.downloads_dir, '%(title)s.%(ext)s'),
                 'progress_hooks': [self._progress_hook],
-                'postprocessors': [{
-                    'key': 'FFmpegVideoConvertor',
+                'postprocessors': [{                    'key': 'FFmpegVideoConvertor',
                     'preferedformat': 'mp4',  # Ensure final format is MP4
                 }],
                 'quiet': True,
+                'no_warnings': True,
                 'nocheckcertificate': True,
                 'prefer_ffmpeg': True,
-                'keepvideo': True,  # Keep the video file after merging
+                'keepvideo': False,  # Don't keep intermediate files
                 'postprocessor_args': [
-                    # FFmpeg arguments to ensure audio is properly copied
+                    # FFmpeg arguments to ensure audio is properly handled
                     '-c:v', 'copy',  # Copy video codec
                     '-c:a', 'aac',   # Convert audio to AAC
                     '-strict', 'experimental'  # Allow experimental codecs if needed

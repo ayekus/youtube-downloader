@@ -14,6 +14,8 @@ app.add_middleware(
         "http://localhost:3000",    # React development server (default)
         "http://localhost:5173",    # Vite development server
         "http://127.0.0.1:5173",   # Vite development server (alternative)
+        "http://localhost:5174",    # Vite development server (alternate port)
+        "http://127.0.0.1:5174",   # Vite development server (alternate port alternative)
     ],
     allow_credentials=True,
     allow_methods=["*"],

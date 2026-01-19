@@ -68,7 +68,11 @@ async def websocket_download(websocket: WebSocket):
                 await websocket.send_json({"status": "error", "message": str(e)})
                 
     except Exception as e:
-        await websocket.close(code=1000)
+        # Only try to close if the connection is still open
+        try:
+            await websocket.close(code=1000)
+        except:
+            pass  # Connection already closed, ignore
 
 @router.post("/download")
 async def download_video(request: DownloadRequest, background_tasks: BackgroundTasks):
